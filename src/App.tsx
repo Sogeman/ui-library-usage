@@ -45,7 +45,7 @@ function App() {
 
   useEffect(() => {
     localStorage.setItem("darkMode", String(darkMode));
-    document.documentElement.style.colorScheme = darkMode ? "dark" : "light";
+    document.body.classList.toggle("dark", darkMode);
   }, [darkMode]);
 
   const validateForm = () => {
