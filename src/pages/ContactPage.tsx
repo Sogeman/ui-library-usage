@@ -144,7 +144,7 @@ export function ContactPage({ onNavigateHome }: ContactPageProps) {
                   </div>
                   <div>
                     <h3 className="font-semibold">Email</h3>
-                    <p className="text-muted-foreground">sales@endrik.com</p>
+                    <p className="text-muted-foreground">sales@hendriks.com</p>
                   </div>
                 </div>
 
