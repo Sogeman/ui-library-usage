@@ -1,15 +1,49 @@
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Grid } from "@/components/ui/grid";
-import { Input, Label } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useState } from "react";
 
 function App() {
+  const [subscribed, setSubscribed] = useState(false);
+  const [notifications, setNotifications] = useState(false);
+  const [email, setEmail] = useState("");
+  const [interest, setInterest] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [errors, setErrors] = useState<{
+    email?: string;
+    interest?: string;
+    terms?: string;
+  }>({});
+
+  const validateForm = () => {
+    const newErrors: typeof errors = {};
+
+    if (!email) {
+      newErrors.email = "Email is required";
+    }
+    if (!interest) {
+      newErrors.interest = "Please select an interest";
+    }
+    if (!termsAccepted) {
+      newErrors.terms = "You must accept the terms and conditions";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="border-b border-border px-6 py-4">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
           <svg
             viewBox="0 0 457 73"
             fill="none"
@@ -51,6 +85,11 @@ function App() {
             <path d="M9 0H0V25.9H9V0Z" fill="#489091"></path>
             <path d="M0 46V46.01V72.42H8.99V46H0Z" fill="#489091"></path>
           </svg>
+          <Avatar
+            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face"
+            alt="Sarah Chen"
+            fallback="SC"
+          />
         </div>
       </header>
 
@@ -131,23 +170,97 @@ function App() {
               title="Stay Updated"
               description="Get notified when we release new components and updates."
             >
+              {subscribed && (
+                <Alert variant="success" className="mb-4 text-left">
+                  <AlertTitle>Successfully subscribed!</AlertTitle>
+                  <AlertDescription>
+                    Thank you for subscribing. You'll receive updates at your
+                    email address.
+                  </AlertDescription>
+                </Alert>
+              )}
+              {Object.keys(errors).length > 0 && (
+                <Alert variant="destructive" className="mb-4 text-left">
+                  <AlertTitle>Please fix the errors below</AlertTitle>
+                  <AlertDescription>
+                    Some required fields are missing or invalid.
+                  </AlertDescription>
+                </Alert>
+              )}
               <form
                 className="space-y-4 text-left"
-                onSubmit={(e) => e.preventDefault()}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (validateForm()) {
+                    setSubscribed(true);
+                    setErrors({});
+                  }
+                }}
               >
                 <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input id="name" placeholder="Your name" />
+                  <Input id="name" label="Name" placeholder="Your name" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
+                    label="Email"
                     type="email"
+                    required
                     placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={errors.email ? "border-destructive" : ""}
+                  />
+                  {errors.email && (
+                    <p className="text-sm text-destructive">{errors.email}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Select
+                    id="interest"
+                    label="Interest"
+                    required
+                    placeholder="Select your interest"
+                    value={interest}
+                    onChange={(e) => setInterest(e.target.value)}
+                    error={!!errors.interest}
+                    options={[
+                      { value: "components", label: "UI Components" },
+                      { value: "design", label: "Design Systems" },
+                      { value: "accessibility", label: "Accessibility" },
+                      { value: "performance", label: "Performance" },
+                    ]}
+                  />
+                  {errors.interest && (
+                    <p className="text-sm text-destructive">
+                      {errors.interest}
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center justify-between">
+                  <Switch
+                    label="Email notifications"
+                    required
+                    checked={notifications}
+                    onChange={(e) => setNotifications(e.target.checked)}
+                    size="sm"
                   />
                 </div>
-                <Button className="w-full">Subscribe</Button>
+                <div className="space-y-1">
+                  <Checkbox
+                    label="I agree to the terms and conditions"
+                    required
+                    id="terms"
+                    checked={termsAccepted}
+                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                  />
+                  {errors.terms && (
+                    <p className="text-sm text-destructive">{errors.terms}</p>
+                  )}
+                </div>
+                <Button className="w-full" type="submit">
+                  Subscribe
+                </Button>
                 <p className="text-xs text-muted-foreground text-center">
                   We respect your privacy. Unsubscribe at any time.
                 </p>
