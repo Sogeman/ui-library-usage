@@ -15,9 +15,13 @@ import {
 } from "@/components/ui/menu";
 import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { ContactPage } from "@/pages/ContactPage";
 import { useEffect, useState } from "react";
 
+type Page = "home" | "contact";
+
 function App() {
+  const [currentPage, setCurrentPage] = useState<Page>("home");
   const [subscribed, setSubscribed] = useState(false);
   const [notifications, setNotifications] = useState(false);
   const [email, setEmail] = useState("");
@@ -60,6 +64,10 @@ function App() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  if (currentPage === "contact") {
+    return <ContactPage onNavigateHome={() => setCurrentPage("home")} />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -216,102 +224,108 @@ function App() {
               title="Stay Updated"
               description="Get notified when we release new components and updates."
             >
-              {subscribed && (
-                <Alert variant="success" className="mb-4 text-left">
+              {subscribed ? (
+                <Alert variant="success" className="text-left">
                   <AlertTitle>Successfully subscribed!</AlertTitle>
                   <AlertDescription>
                     Thank you for subscribing. You'll receive updates at your
                     email address.
                   </AlertDescription>
                 </Alert>
-              )}
-              {Object.keys(errors).length > 0 && (
-                <Alert variant="destructive" className="mb-4 text-left">
-                  <AlertTitle>Please fix the errors below</AlertTitle>
-                  <AlertDescription>
-                    Some required fields are missing or invalid.
-                  </AlertDescription>
-                </Alert>
-              )}
-              <form
-                className="space-y-4 text-left"
-                noValidate
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (validateForm()) {
-                    setSubscribed(true);
-                    setErrors({});
-                  }
-                }}
-              >
-                <div className="space-y-2">
-                  <Input id="name" label="Name" placeholder="Your name" />
-                </div>
-                <div className="space-y-2">
-                  <Input
-                    id="email"
-                    label="Email"
-                    type="email"
-                    required
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className={errors.email ? "border-destructive" : ""}
-                  />
-                  {errors.email && (
-                    <p className="text-sm text-destructive">{errors.email}</p>
+              ) : (
+                <>
+                  {Object.keys(errors).length > 0 && (
+                    <Alert variant="destructive" className="mb-4 text-left">
+                      <AlertTitle>Please fix the errors below</AlertTitle>
+                      <AlertDescription>
+                        Some required fields are missing or invalid.
+                      </AlertDescription>
+                    </Alert>
                   )}
-                </div>
-                <div className="space-y-2">
-                  <Select
-                    id="interest"
-                    label="Interest"
-                    required
-                    placeholder="Select your interest"
-                    value={interest}
-                    onChange={(e) => setInterest(e.target.value)}
-                    error={!!errors.interest}
-                    options={[
-                      { value: "components", label: "UI Components" },
-                      { value: "design", label: "Design Systems" },
-                      { value: "accessibility", label: "Accessibility" },
-                      { value: "performance", label: "Performance" },
-                    ]}
-                  />
-                  {errors.interest && (
-                    <p className="text-sm text-destructive">
-                      {errors.interest}
+                  <form
+                    className="space-y-4 text-left"
+                    noValidate
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (validateForm()) {
+                        setSubscribed(true);
+                        setErrors({});
+                      }
+                    }}
+                  >
+                    <div className="space-y-2">
+                      <Input id="name" label="Name" placeholder="Your name" />
+                    </div>
+                    <div className="space-y-2">
+                      <Input
+                        id="email"
+                        label="Email"
+                        type="email"
+                        required
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className={errors.email ? "border-destructive" : ""}
+                      />
+                      {errors.email && (
+                        <p className="text-sm text-destructive">
+                          {errors.email}
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Select
+                        id="interest"
+                        label="Interest"
+                        required
+                        placeholder="Select your interest"
+                        value={interest}
+                        onChange={(e) => setInterest(e.target.value)}
+                        error={!!errors.interest}
+                        options={[
+                          { value: "components", label: "UI Components" },
+                          { value: "design", label: "Design Systems" },
+                          { value: "accessibility", label: "Accessibility" },
+                          { value: "performance", label: "Performance" },
+                        ]}
+                      />
+                      {errors.interest && (
+                        <p className="text-sm text-destructive">
+                          {errors.interest}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Switch
+                        label="Also sell my data"
+                        checked={notifications}
+                        onChange={(e) => setNotifications(e.target.checked)}
+                        size="sm"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Checkbox
+                        label="I agree to the terms and conditions"
+                        required
+                        id="terms"
+                        checked={termsAccepted}
+                        onChange={(e) => setTermsAccepted(e.target.checked)}
+                      />
+                      {errors.terms && (
+                        <p className="text-sm text-destructive">
+                          {errors.terms}
+                        </p>
+                      )}
+                    </div>
+                    <Button className="w-full" type="submit">
+                      Subscribe
+                    </Button>
+                    <p className="text-xs text-muted-foreground text-center">
+                      We respect your privacy. Unsubscribe at any time.
                     </p>
-                  )}
-                </div>
-                <div className="flex items-center justify-between">
-                  <Switch
-                    label="Email notifications"
-                    required
-                    checked={notifications}
-                    onChange={(e) => setNotifications(e.target.checked)}
-                    size="sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Checkbox
-                    label="I agree to the terms and conditions"
-                    required
-                    id="terms"
-                    checked={termsAccepted}
-                    onChange={(e) => setTermsAccepted(e.target.checked)}
-                  />
-                  {errors.terms && (
-                    <p className="text-sm text-destructive">{errors.terms}</p>
-                  )}
-                </div>
-                <Button className="w-full" type="submit">
-                  Subscribe
-                </Button>
-                <p className="text-xs text-muted-foreground text-center">
-                  We respect your privacy. Unsubscribe at any time.
-                </p>
-              </form>
+                  </form>
+                </>
+              )}
             </Card>
           </div>
         </section>
@@ -330,7 +344,11 @@ function App() {
               <Button variant="secondary" size="lg">
                 Start Building
               </Button>
-              <Button variant="secondary" size="lg">
+              <Button
+                variant="secondary"
+                size="lg"
+                onClick={() => setCurrentPage("contact")}
+              >
                 Contact Sales
               </Button>
             </div>
