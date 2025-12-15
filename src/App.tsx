@@ -6,9 +6,16 @@ import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Grid } from "@/components/ui/grid";
 import { Input } from "@/components/ui/input";
+import {
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuSeparator,
+  MenuTrigger,
+} from "@/components/ui/menu";
 import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function App() {
   const [subscribed, setSubscribed] = useState(false);
@@ -21,6 +28,21 @@ function App() {
     interest?: string;
     terms?: string;
   }>({});
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("darkMode");
+      if (saved !== null) {
+        return saved === "true";
+      }
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("darkMode", String(darkMode));
+    document.documentElement.style.colorScheme = darkMode ? "dark" : "light";
+  }, [darkMode]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -85,11 +107,35 @@ function App() {
             <path d="M9 0H0V25.9H9V0Z" fill="#489091"></path>
             <path d="M0 46V46.01V72.42H8.99V46H0Z" fill="#489091"></path>
           </svg>
-          <Avatar
-            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face"
-            alt="Sarah Chen"
-            fallback="SC"
-          />
+          <Menu>
+            <MenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <Avatar
+                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face"
+                  alt="Sarah Chen"
+                  fallback="SC"
+                />
+              </Button>
+            </MenuTrigger>
+            <MenuContent className="w-56">
+              <MenuItem>Profile</MenuItem>
+              <MenuItem>Settings</MenuItem>
+              <MenuSeparator />
+              <div
+                className="relative flex w-full cursor-default select-none items-center justify-between rounded-sm px-2 py-1.5 text-sm"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <span>Dark Mode</span>
+                <Switch
+                  size="sm"
+                  checked={darkMode}
+                  onChange={(e) => setDarkMode(e.target.checked)}
+                />
+              </div>
+              <MenuSeparator />
+              <MenuItem destructive>Sign out</MenuItem>
+            </MenuContent>
+          </Menu>
         </div>
       </header>
 
@@ -189,6 +235,7 @@ function App() {
               )}
               <form
                 className="space-y-4 text-left"
+                noValidate
                 onSubmit={(e) => {
                   e.preventDefault();
                   if (validateForm()) {
@@ -336,7 +383,7 @@ function App() {
             <path d="M0 46V46.01V72.42H8.99V46H0Z" fill="#489091"></path>
           </svg>
           <p className="text-sm text-muted-foreground">
-            © 2025 Hendriks All rights reserved.
+            © {new Date().getFullYear()} Hendriks All rights reserved.
           </p>
         </div>
       </footer>
